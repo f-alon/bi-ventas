@@ -74,7 +74,7 @@ def insert_order(data: dict) -> bool:
     with conn:
         conn.execute(
             """
-            INSERT INTO ordenes (
+            INSERT OR REPLACE INTO ordenes (
                 id_orden, fecha_ingreso, fecha_egreso, fecha_ultimo_estado,
                 cliente_nombre, cliente_telefono, imei, marca, modelo,
                 categoria_falla, diagnostico, costo_repuesto, valor_cobrado,

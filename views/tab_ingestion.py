@@ -12,12 +12,28 @@ from core.config import (
     MODELOS_POR_MARCA,
     TECNICOS,
 )
-from core.db import bulk_insert_orders, get_next_order_id, insert_order
+from core.db import bulk_insert_orders, get_connection, get_next_order_id, insert_order
 
 
 def render_tab_ingestion() -> None:
     """Renderiza el formulario de carga individual y el asistente de carga masiva."""
     st.markdown("<h4 style='color: #F3F4F6;'>Gestión Operativa de Órdenes de Trabajo (OT)</h4>", unsafe_allow_html=True)
+
+    # Mostrar alerta de orden recién guardada si existe en session_state
+    if "saved_order_alert" in st.session_state and st.session_state["saved_order_alert"]:
+        ot_guardada = st.session_state["saved_order_alert"]
+        st.markdown(
+            f"""
+            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; border-left: 5px solid #10B981; padding: 0.85rem 1.25rem; border-radius: 8px; margin-bottom: 1.25rem;">
+                <b style="color: #10B981; font-size: 1rem;">✅ ¡Orden {ot_guardada} guardada exitosamente en la Base de Datos!</b>
+                <div style="color: #D1D5DB; font-size: 0.85rem; margin-top: 0.25rem;">
+                    La orden ya está disponible en el sistema. Podés verla reflejada abajo en tiempo real o buscarla en la pestaña <b>Explorador & Auditoría</b>.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        del st.session_state["saved_order_alert"]
 
     method = st.radio(
         "Seleccionar método de ingreso de datos:",
@@ -31,22 +47,26 @@ def render_tab_ingestion() -> None:
     else:
         render_batch_upload()
 
+    # Tabla de verificación en vivo: Últimas 10 órdenes ingresadas
+    render_recent_orders_table()
+
 
 def render_manual_form() -> None:
-    """Formulario interactivo para registrar una nueva orden de servicio técnico."""
+    """Formulario dinámico y reactivo para registrar órdenes de servicio técnico."""
     next_id = get_next_order_id()
 
-    with st.form("form_nueva_orden", clear_on_submit=True):
+    with st.container():
         st.markdown(
             f"""
-            <div style="background: rgba(0, 240, 255, 0.08); border-left: 3px solid #00F0FF; padding: 0.6rem 1rem; border-radius: 6px; margin-bottom: 1.25rem;">
-                <b style="color: #00F0FF;">Nueva Orden de Trabajo:</b> <span class="tech-mono" style="color: #FFFFFF; font-weight: 700;">{next_id}</span>
-                <span style="color: #9CA3AF; font-size: 0.8rem; margin-left: 1rem;">Completá los datos técnicos y financieros del equipo.</span>
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.25); border-left: 4px solid #00F0FF; padding: 0.75rem 1.2rem; border-radius: 8px; margin-bottom: 1.25rem;">
+                <b style="color: #00F0FF; font-size: 1.05rem;">Nueva Orden de Trabajo:</b> <span class="tech-mono" style="color: #FFFFFF; font-weight: 700; font-size: 1.1rem; margin-left: 0.5rem;">{next_id}</span>
+                <span style="color: #9CA3AF; font-size: 0.8rem; margin-left: 1rem;">Seleccioná la marca para cargar automáticamente sus modelos disponibles.</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
+        # Fila 1: ID y Fechas
         col_id, col_fingreso, col_fegreso = st.columns([1, 1.2, 1.2])
         with col_id:
             ot_id_input = st.text_input("ID Orden:", value=next_id, key="form_in_id_orden")
@@ -58,21 +78,33 @@ def render_manual_form() -> None:
 
         st.markdown("<div style='border-top: 1px solid #1F2937; margin: 0.75rem 0;'></div>", unsafe_allow_html=True)
 
-        # Datos del Dispositivo y Cliente
+        # Fila 2: Marca (Reactiva) y Modelo Dinámico
         col_m1, col_m2, col_cli, col_tel = st.columns(4)
         with col_m1:
-            marca = st.selectbox("Marca:", options=MARCAS, index=0, key="form_sel_marca")
+            marcas_lista = MARCAS + ["Otra marca..."]
+            marca_sel = st.selectbox("Marca del Dispositivo:", options=marcas_lista, index=0, key="form_sel_marca")
+            if marca_sel == "Otra marca...":
+                marca = st.text_input("Especificar Marca:", placeholder="Ej: OnePlus, TCL, ZTE", key="form_in_marca_custom")
+            else:
+                marca = marca_sel
+
         with col_m2:
-            modelos_sugeridos = MODELOS_POR_MARCA.get(marca, ["Otro"])
-            modelo = st.selectbox("Modelo:", options=modelos_sugeridos, key="form_sel_modelo")
+            modelos_disponibles = MODELOS_POR_MARCA.get(marca_sel, []) + ["Otro (escribir manual)..."]
+            modelo_sel = st.selectbox("Modelo:", options=modelos_disponibles, index=0, key="form_sel_modelo")
+            if modelo_sel == "Otro (escribir manual)...":
+                modelo = st.text_input("Especificar Modelo:", placeholder="Ej: Moto G84, A52, etc.", key="form_in_modelo_custom")
+            else:
+                modelo = modelo_sel
+
         with col_cli:
             cliente_nombre = st.text_input("Nombre de Cliente:", placeholder="Ej: Marcelo Gómez", key="form_in_cliente")
         with col_tel:
             cliente_telefono = st.text_input("Teléfono de Contacto:", placeholder="Ej: +54 9 11 5555-1234", key="form_in_tel")
 
+        # Fila 3: Falla, Técnico e IMEI
         col_imei, col_falla, col_tec = st.columns([1.2, 1.8, 1.5])
         with col_imei:
-            imei = st.text_input("IMEI / Nro de Serie (15 dígitos):", placeholder="358492019485721", key="form_in_imei")
+            imei = st.text_input("IMEI / Nro de Serie:", placeholder="15 dígitos", key="form_in_imei")
         with col_falla:
             categoria_falla = st.selectbox("Categoría de Falla:", options=CATEGORIAS_FALLA, key="form_sel_falla")
         with col_tec:
@@ -86,7 +118,7 @@ def render_manual_form() -> None:
 
         st.markdown("<div style='border-top: 1px solid #1F2937; margin: 0.75rem 0;'></div>", unsafe_allow_html=True)
 
-        # Métricas Financieras y Estado
+        # Fila 4: Métricas Financieras y Estado (Cálculo de Margen en tiempo real)
         col_costo, col_cobrado, col_estado, col_garantia = st.columns(4)
         with col_costo:
             costo_repuesto = st.number_input(
@@ -109,7 +141,7 @@ def render_manual_form() -> None:
         with col_garantia:
             garantia_dias = st.selectbox("Garantía Otorgada (Días):", options=GARANTIAS_DIAS, index=1, key="form_sel_garantia")
 
-        # Margen calculado en tiempo real
+        # Margen calculado en vivo
         margen_calculado = valor_cobrado - costo_repuesto
         margen_pct_calc = (margen_calculado / valor_cobrado * 100.0) if valor_cobrado > 0 else 0.0
 
@@ -119,23 +151,34 @@ def render_manual_form() -> None:
         with col_margen_prev:
             st.markdown(
                 f"""
-                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.4rem 0.8rem; border-radius: 6px; text-align: right;">
-                    <span style="color: #9CA3AF; font-size: 0.75rem;">Margen Neto Estimado: </span>
-                    <b style="color: #10B981; font-size: 1.05rem;">${margen_calculado:,.0f} ({margen_pct_calc:.1f}%)</b>
+                <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); padding: 0.45rem 0.9rem; border-radius: 6px; text-align: right; margin-top: 0.2rem;">
+                    <span style="color: #9CA3AF; font-size: 0.78rem;">Margen Neto Estimado: </span>
+                    <b style="color: #10B981; font-size: 1.1rem; margin-left: 0.3rem;">${margen_calculado:,.0f} ({margen_pct_calc:.1f}%)</b>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-        btn_submit = st.form_submit_button(
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+
+        btn_submit = st.button(
             "💾 Guardar Orden en Base de Datos",
             type="primary",
             use_container_width=True,
+            key="btn_guardar_orden_manual",
         )
 
         if btn_submit:
             if not ot_id_input.strip():
                 st.error("El ID de la orden no puede estar vacío.")
+                return
+
+            if not marca or not marca.strip():
+                st.error("Debes indicar una marca para el dispositivo.")
+                return
+
+            if not modelo or not modelo.strip():
+                st.error("Debes indicar un modelo para el dispositivo.")
                 return
 
             order_data = {
@@ -146,8 +189,8 @@ def render_manual_form() -> None:
                 "cliente_nombre": cliente_nombre.strip(),
                 "cliente_telefono": cliente_telefono.strip(),
                 "imei": imei.strip(),
-                "marca": marca,
-                "modelo": modelo,
+                "marca": marca.strip(),
+                "modelo": modelo.strip(),
                 "categoria_falla": categoria_falla,
                 "diagnostico": diagnostico.strip(),
                 "costo_repuesto": costo_repuesto,
@@ -160,10 +203,63 @@ def render_manual_form() -> None:
 
             try:
                 insert_order(order_data)
-                st.success(f"✅ ¡Orden {order_data['id_orden']} registrada exitosamente en la base de datos!")
+                st.session_state["saved_order_alert"] = order_data["id_orden"]
                 st.rerun()
             except Exception as exc:
                 st.error(f"Error al guardar la orden: {exc}")
+
+
+def render_recent_orders_table() -> None:
+    """Muestra una tabla con las últimas 10 órdenes registradas directamente de SQLite."""
+    st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+            <b style="color: #00F0FF; font-size: 1.05rem;">📋 Órdenes Recientes en el Taller (Últimas 10 Registradas)</b>
+            <span style="color: #9CA3AF; font-size: 0.78rem;">Sincronizado en tiempo real con SQLite</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    conn = get_connection()
+    recent_df = pd.read_sql_query(
+        """
+        SELECT id_orden, fecha_ingreso, marca, modelo, categoria_falla, 
+               estado, valor_cobrado, margen_neto, cliente_nombre, imei, tecnico
+        FROM ordenes 
+        ORDER BY id DESC 
+        LIMIT 10
+        """,
+        conn,
+    )
+
+    if recent_df.empty:
+        st.info("No hay órdenes registradas.")
+    else:
+        st.dataframe(
+            recent_df.rename(
+                columns={
+                    "id_orden": "ID Orden",
+                    "fecha_ingreso": "Ingreso",
+                    "marca": "Marca",
+                    "modelo": "Modelo",
+                    "categoria_falla": "Falla",
+                    "estado": "Estado",
+                    "valor_cobrado": "Cobrado ($)",
+                    "margen_neto": "Margen ($)",
+                    "cliente_nombre": "Cliente",
+                    "imei": "IMEI",
+                    "tecnico": "Técnico",
+                }
+            ),
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Cobrado ($)": st.column_config.NumberColumn(format="$%d"),
+                "Margen ($)": st.column_config.NumberColumn(format="$%d"),
+            },
+        )
 
 
 def render_batch_upload() -> None:
@@ -188,8 +284,8 @@ def render_batch_upload() -> None:
                 "id_orden": "OT-2001",
                 "fecha_ingreso": "2026-10-01",
                 "fecha_egreso": "2026-10-03",
-                "marca": "Apple",
-                "modelo": "iPhone 13",
+                "marca": "Samsung",
+                "modelo": "Galaxy S22 Ultra",
                 "imei": "354920194857211",
                 "cliente_nombre": "Carlos Valenzuela",
                 "cliente_telefono": "+54 9 11 4444-1234",
@@ -263,4 +359,3 @@ def render_batch_upload() -> None:
 
         except Exception as exc:
             st.error(f"Error al procesar el archivo: {exc}")
-

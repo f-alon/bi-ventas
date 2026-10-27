@@ -146,7 +146,7 @@ def main() -> None:
         render_tab_diagnostics(df_filtered)
 
     with tab4:
-        render_tab_explorer(df_filtered)
+        render_tab_explorer(df_all)
 
     with tab5:
         render_tab_ingestion()
