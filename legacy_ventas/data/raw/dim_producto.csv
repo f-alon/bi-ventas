@@ -1,0 +1,25 @@
+id_producto,producto,categoria,precio_lista,costo_unitario
+1,Auriculares Nova,Electrónica,28900,14200
+2,Teclado mecánico Pulse,Electrónica,42100,21000
+3,Monitor 27 4K,Electrónica,189000,112000
+4,Notebook 14 Air,Electrónica,890000,610000
+5,Mouse inalámbrico,Electrónica,18900,7200
+6,Lámpara LED escritorio,Hogar,24500,9800
+7,Silla ergonómica,Hogar,178000,89000
+8,Juego de sábanas,Hogar,39000,16000
+9,Cafetera espresso,Hogar,95000,48000
+10,Organizador cocina,Hogar,15600,6100
+11,Campera urbana,Indumentaria,72000,31000
+12,Zapatillas running,Indumentaria,68000,29000
+13,Remera básica pack x3,Indumentaria,21900,8400
+14,Mochila diaria,Indumentaria,34500,14000
+15,Café de especialidad 1kg,Alimentos,18900,9200
+16,Aceite de oliva 500ml,Alimentos,9800,4100
+17,Mix de frutos secos,Alimentos,7200,3100
+18,Barra proteica x12,Alimentos,12500,5400
+19,Kit yoga,Deportes,28900,12100
+20,Mancuernas 5kg par,Deportes,35600,14800
+21,Pelota fútbol,Deportes,18900,7600
+22,Bicicleta urbana,Deportes,245000,148000
+23,Botella térmica,Deportes,14200,5100
+24,Cinta de correr plegable,Deportes,410000,255000
