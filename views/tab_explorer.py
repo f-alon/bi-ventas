@@ -15,6 +15,9 @@ def render_tab_explorer(df_all: pd.DataFrame) -> None:
 
     st.markdown("<h4 style='color: #F3F4F6; margin-bottom: 0.5rem;'>Auditoría y Exploración Avanzada</h4>", unsafe_allow_html=True)
 
+    def _clear_search_callback() -> None:
+        st.session_state["explorer_input_search"] = ""
+
     # 1. Búsqueda Global Directa (Prioritaria)
     col_search, col_clear = st.columns([4, 1])
     with col_search:
@@ -25,9 +28,12 @@ def render_tab_explorer(df_all: pd.DataFrame) -> None:
         )
     with col_clear:
         st.markdown("<div style='margin-top: 1.75rem;'></div>", unsafe_allow_html=True)
-        if st.button("✖ Limpiar", key="btn_clear_search", use_container_width=True):
-            st.session_state["explorer_input_search"] = ""
-            st.rerun()
+        st.button(
+            "✖ Limpiar",
+            on_click=_clear_search_callback,
+            key="btn_clear_search",
+            use_container_width=True,
+        )
 
     # Si hay término de búsqueda, priorizamos la búsqueda global en TODO el dataset
     is_searching = bool(search_query.strip())
