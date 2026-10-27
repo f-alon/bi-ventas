@@ -1,4 +1,4 @@
-"""Dashboard Operativo y BI para Servicio Técnico de Reparación de Celulares (LABFIX BI)."""
+"""Dashboard Operativo y BI para Servicio Técnico de Celulares (LABFIX BI)."""
 
 from datetime import date, timedelta
 from pathlib import Path
@@ -18,41 +18,72 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from components.cards import empty_state, render_header
+from auth import (
+    get_user_count,
+    init_session_state,
+    logout_user,
+    render_login_view,
+)
 from components.ui import inject_custom_css
-from core.config import ESTADOS_WIP
 from core.db import init_db, load_orders_df
-from core.seed import seed_database
-from views.tab_diagnostics import render_tab_diagnostics
-from views.tab_explorer import render_tab_explorer
-from views.tab_financial import render_tab_financial
-from views.tab_ingestion import render_tab_ingestion
-from views.tab_overview import render_tab_overview
+from views.admin_view import render_admin_dashboard
+from views.tecnico_view import render_tecnico_workspace
 
 # Inyección de estilos visuales dark / cyberpunk
 inject_custom_css()
 
-# Inicialización y verificación de base de datos
+# Inicialización de esquema de base de datos y control de sesión
 init_db()
-seed_database(num_records=180, force=False)
+init_session_state()
 
 
 def main() -> None:
-    # Carga de dataset desde SQLite
+    # 1. Puerta de Enlace de Autenticación
+    if not st.session_state.get("authenticated", False):
+        render_login_view()
+        return
+
+    # 2. Carga de dataset desde SQLite
     df_all = load_orders_df()
 
-    # Barra lateral de filtros globales y control
+    # Usuario y Rol actual en sesión
+    current_username = st.session_state.get("username", "")
+    current_tech_name = st.session_state.get("tecnico_nombre", "")
+    current_role = st.session_state.get("user_role", "tecnico")
+
+    # 3. Barra Lateral de Navegación y Control de Sesión
     with st.sidebar:
         st.markdown(
             """
-            <div style="padding: 0.5rem 0 1rem 0; border-bottom: 1px solid #1F2937; margin-bottom: 1rem;">
+            <div style="padding: 0.25rem 0 0.8rem 0; border-bottom: 1px solid #1F2937; margin-bottom: 0.8rem;">
                 <h3 style="color: #00F0FF; margin: 0; font-weight: 800; letter-spacing: -0.02em;">⚡ LABFIX BI</h3>
-                <span style="color: #9CA3AF; font-size: 0.76rem;">Panel de Inteligencia Técnica v2.0</span>
+                <span style="color: #9CA3AF; font-size: 0.76rem;">Microelectrónica & Smartphone BI v2.5</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
+        # Perfil del usuario activo
+        role_label = "👑 Administrador" if current_role == "admin" else "🔬 Técnico de Lab"
+        role_color = "#00F0FF" if current_role == "admin" else "#8B5CF6"
+
+        st.markdown(
+            f"""
+            <div style="background: rgba(17, 24, 39, 0.9); border: 1px solid #1F2937; border-left: 3px solid {role_color}; padding: 0.6rem 0.8rem; border-radius: 8px; margin-bottom: 1rem;">
+                <div style="color: #9CA3AF; font-size: 0.72rem; text-transform: uppercase;">Sesión Activa</div>
+                <div style="color: #FFFFFF; font-weight: 700; font-size: 0.95rem;">{current_tech_name}</div>
+                <div style="color: {role_color}; font-size: 0.78rem; font-weight: 600;">{role_label} (<span class="tech-mono">@{current_username}</span>)</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        if st.button("🚪 Cerrar Sesión", key="sidebar_btn_logout", use_container_width=True):
+            logout_user()
+
+        st.markdown("<div style='border-top: 1px solid #1F2937; margin: 1rem 0;'></div>", unsafe_allow_html=True)
+
+        # Filtros temporales generales (activos principalmente para la vista de análisis)
         st.markdown("<b style='color: #E5E7EB; font-size: 0.85rem;'>Filtro Temporal General:</b>", unsafe_allow_html=True)
 
         if not df_all.empty and df_all["fecha_ingreso_dt"].notna().any():
@@ -62,7 +93,6 @@ def main() -> None:
             min_date = date.today() - timedelta(days=90)
             max_date = date.today()
 
-        # Rango por defecto: últimos 90 días
         default_start = max(min_date, max_date - timedelta(days=90))
 
         date_range = st.date_input(
@@ -73,9 +103,9 @@ def main() -> None:
             key="sidebar_date_range",
         )
 
-        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 0.75rem;'></div>", unsafe_allow_html=True)
 
-        # Filtro de marcas rápido en sidebar
+        # Filtro rápido de marcas
         if not df_all.empty:
             marcas_disp = sorted(df_all["marca"].dropna().unique().tolist())
             selected_marcas = st.multiselect(
@@ -87,71 +117,34 @@ def main() -> None:
         else:
             selected_marcas = []
 
-        st.markdown("<div style='border-top: 1px solid #1F2937; margin: 1.5rem 0 1rem 0;'></div>", unsafe_allow_html=True)
-
-        # Utilidades del taller
-        with st.expander("🛠️ Opciones de Laboratorio", expanded=False):
-            if st.button("🔄 Regenerar Datos de Prueba (Seed)", key="btn_reseed_db", use_container_width=True):
-                seed_database(num_records=180, force=True)
-                st.toast("Base de datos regenerada con 180 órdenes de ejemplo.", icon="⚡")
-                st.rerun()
-
         st.markdown(
             """
-            <div style="margin-top: 2rem; color: #6B7280; font-size: 0.72rem; text-align: center;">
+            <div style="margin-top: 3rem; color: #6B7280; font-size: 0.72rem; text-align: center;">
                 Microelectrónica & Smartphone BI<br>
-                Persistencia: SQLite Local (<code class="tech-mono">repairs.db</code>)
+                Persistencia: SQLite (<code class="tech-mono">data/repairs.db</code>)
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    # Filtrado según sidebar
+    # Filtrar dataset para vistas analíticas
     df_filtered = df_all.copy()
-    if isinstance(date_range, (tuple, list)) and len(date_range) == 2:
+    if not df_all.empty and isinstance(date_range, (tuple, list)) and len(date_range) == 2:
         start_d, end_d = date_range
         df_filtered = df_filtered[
             (df_filtered["fecha_ingreso_dt"].dt.date >= start_d)
             & (df_filtered["fecha_ingreso_dt"].dt.date <= end_d)
         ]
 
-    if selected_marcas:
+    if not df_all.empty and selected_marcas:
         df_filtered = df_filtered[df_filtered["marca"].isin(selected_marcas)]
 
-    # Cálculo de métricas para el header
-    total_orders = len(df_all)
-    active_wip = len(df_all[df_all["estado"].isin(ESTADOS_WIP)])
-
-    # Render Header principal
-    render_header(total_orders=total_orders, active_wip=active_wip)
-
-    # Pestañas principales del dashboard
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
-        [
-            "📊 Panel Ejecutivo y Operativo",
-            "💰 Análisis Financiero & Rentabilidad",
-            "🔬 Métricas de Dispositivos & Fallas",
-            "🔍 Explorador & Auditoría",
-            "➕ Ingesta & Carga de OTs",
-        ]
-    )
-
-    with tab1:
-        render_tab_overview(df_filtered)
-
-    with tab2:
-        render_tab_financial(df_filtered)
-
-    with tab3:
-        render_tab_diagnostics(df_filtered)
-
-    with tab4:
-        render_tab_explorer(df_all)
-
-    with tab5:
-        render_tab_ingestion()
+    # 4. Enrutamiento según Rol del Usuario
+    if current_role == "admin":
+        render_admin_dashboard(df_all=df_all, df_filtered=df_filtered)
+    else:
+        render_tecnico_workspace(df_all=df_all, current_tech_name=current_tech_name)
 
 
 if __name__ == "__main__":
     main()
-

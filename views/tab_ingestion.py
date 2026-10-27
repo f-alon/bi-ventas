@@ -4,6 +4,7 @@ from datetime import date, timedelta
 import io
 import pandas as pd
 import streamlit as st
+from auth import get_available_technicians
 from core.config import (
     CATEGORIAS_FALLA,
     ESTADOS_ORDEN,
@@ -108,7 +109,16 @@ def render_manual_form() -> None:
         with col_falla:
             categoria_falla = st.selectbox("Categoría de Falla:", options=CATEGORIAS_FALLA, key="form_sel_falla")
         with col_tec:
-            tecnico = st.selectbox("Técnico Asignado:", options=TECNICOS, key="form_sel_tecnico")
+            tecnicos_disponibles = get_available_technicians()
+            opciones_tec = tecnicos_disponibles + ["Otro técnico (escribir manual)..."]
+            usuario_actual = st.session_state.get("tecnico_nombre", "")
+            idx_tec = opciones_tec.index(usuario_actual) if usuario_actual in opciones_tec else 0
+
+            tec_sel = st.selectbox("Técnico Asignado:", options=opciones_tec, index=idx_tec, key="form_sel_tecnico")
+            if tec_sel == "Otro técnico (escribir manual)...":
+                tecnico = st.text_input("Especificar Nombre del Técnico:", placeholder="Ej: Juan Pérez / Mi Taller", key="form_in_tec_custom")
+            else:
+                tecnico = tec_sel
 
         diagnostico = st.text_area(
             "Diagnóstico Preliminar & Notas de Microelectrónica:",
@@ -181,6 +191,10 @@ def render_manual_form() -> None:
                 st.error("Debes indicar un modelo para el dispositivo.")
                 return
 
+            if not tecnico or not tecnico.strip():
+                st.error("Debes indicar el técnico a cargo de la orden.")
+                return
+
             order_data = {
                 "id_orden": ot_id_input.strip().upper(),
                 "fecha_ingreso": str(fecha_ingreso),
@@ -196,7 +210,7 @@ def render_manual_form() -> None:
                 "costo_repuesto": costo_repuesto,
                 "valor_cobrado": valor_cobrado,
                 "estado": estado,
-                "tecnico": tecnico,
+                "tecnico": tecnico.strip(),
                 "garantia_dias": garantia_dias,
                 "es_retorno_garantia": 1 if es_retorno else 0,
             }
