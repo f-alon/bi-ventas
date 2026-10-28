@@ -9,3 +9,4 @@ c00100f350846c5c7140411c02233a76fccecdca cec4dce3bede5a0836cb935432419fdbb282c14
 cec4dce3bede5a0836cb935432419fdbb282c14f 292ebd2b0ca94331099e7c68bfaad853dab5e6fa f-alon <f.desananiceto@protonmail.com> 1793212726 -0300	commit: feat: Update drive upload files and manage binary changes
 292ebd2b0ca94331099e7c68bfaad853dab5e6fa e50a11547caf085b5fd9cb47defd94d6ea0730c7 f-alon <f.desananiceto@protonmail.com> 1793212750 -0300	commit: 2
 e50a11547caf085b5fd9cb47defd94d6ea0730c7 c48e297d1e1468e182c9fc8ae4e98bfe43d080de f-alon <f.desananiceto@protonmail.com> 1793212806 -0300	commit: feat: Clean up temporary drive upload files and manage binary changes
+c48e297d1e1468e182c9fc8ae4e98bfe43d080de 3b5c268c532b4391079e40d05ca36a8fb71e195f f-alon <f.desananiceto@protonmail.com> 1793212875 -0300	commit: feat: Manage temporary drive upload files and clean up binary changes
