@@ -1,0 +1,6 @@
+feat: Add new modules for technical workbench, stock labels, inventory control, and supplier management
+
+- Implemented the technical workbench module for managing microelectronics and order self-assignment.
+- Created a thermal label printing module for products and spare parts.
+- Developed an inventory control module with product variants and stock adjustments.
+- Added a supplier directory module for managing suppliers and associated products.

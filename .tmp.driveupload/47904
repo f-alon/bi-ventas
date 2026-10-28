@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 9882b9cc7c57ad325fa2e0343c0fd4cb709473a1 f-alon <f.desananiceto@protonmail.com> 1793131665 -0300	commit (initial): Varias modificaciones a dashboard taller
+9882b9cc7c57ad325fa2e0343c0fd4cb709473a1 ff7890ce3fb986ec0d6944e39181711a52cb4df7 f-alon <f.desananiceto@protonmail.com> 1793131788 -0300	commit: L15
+ff7890ce3fb986ec0d6944e39181711a52cb4df7 c2cbd17becedfac62c76e828676183829bb31885 f-alon <f.desananiceto@protonmail.com> 1793133621 -0300	commit: Refactor data explorer and ingestion tabs for improved functionality and user experience
+c2cbd17becedfac62c76e828676183829bb31885 fe42ed5d8e0928757018b87e9be0ba112e6eccbd f-alon <f.desananiceto@protonmail.com> 1793133747 -0300	commit: Se implementó el patrón oficial de Streamlit usando un callback
+fe42ed5d8e0928757018b87e9be0ba112e6eccbd 5cb92b07d0330541c2001d1138a151ca8fb8bb83 f-alon <f.desananiceto@protonmail.com> 1793141445 -0300	commit: feat: Add database connection module and reset script
+5cb92b07d0330541c2001d1138a151ca8fb8bb83 dd6dce2fb57e638b9e84b17bd29c2f6923321e8a f-alon <f.desananiceto@protonmail.com> 1793212574 -0300	commit: feat: Add new modules for technical workbench, stock labels, inventory control, and supplier management
