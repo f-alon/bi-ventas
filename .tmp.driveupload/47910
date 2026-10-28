@@ -1,0 +1,20 @@
+0000000000000000000000000000000000000000 9882b9cc7c57ad325fa2e0343c0fd4cb709473a1 f-alon <f.desananiceto@protonmail.com> 1793131665 -0300	commit (initial): Varias modificaciones a dashboard taller
+9882b9cc7c57ad325fa2e0343c0fd4cb709473a1 ff7890ce3fb986ec0d6944e39181711a52cb4df7 f-alon <f.desananiceto@protonmail.com> 1793131788 -0300	commit: L15
+ff7890ce3fb986ec0d6944e39181711a52cb4df7 c2cbd17becedfac62c76e828676183829bb31885 f-alon <f.desananiceto@protonmail.com> 1793133621 -0300	commit: Refactor data explorer and ingestion tabs for improved functionality and user experience
+c2cbd17becedfac62c76e828676183829bb31885 fe42ed5d8e0928757018b87e9be0ba112e6eccbd f-alon <f.desananiceto@protonmail.com> 1793133747 -0300	commit: Se implementó el patrón oficial de Streamlit usando un callback
+fe42ed5d8e0928757018b87e9be0ba112e6eccbd 5cb92b07d0330541c2001d1138a151ca8fb8bb83 f-alon <f.desananiceto@protonmail.com> 1793141445 -0300	commit: feat: Add database connection module and reset script
+5cb92b07d0330541c2001d1138a151ca8fb8bb83 dd6dce2fb57e638b9e84b17bd29c2f6923321e8a f-alon <f.desananiceto@protonmail.com> 1793212574 -0300	commit: feat: Add new modules for technical workbench, stock labels, inventory control, and supplier management
+dd6dce2fb57e638b9e84b17bd29c2f6923321e8a c00100f350846c5c7140411c02233a76fccecdca f-alon <f.desananiceto@protonmail.com> 1793212599 -0300	commit: feat: Add multiple new modules for technical workbench, inventory control, and supplier management
+c00100f350846c5c7140411c02233a76fccecdca cec4dce3bede5a0836cb935432419fdbb282c14f f-alon <f.desananiceto@protonmail.com> 1793212638 -0300	commit: 1
+cec4dce3bede5a0836cb935432419fdbb282c14f 292ebd2b0ca94331099e7c68bfaad853dab5e6fa f-alon <f.desananiceto@protonmail.com> 1793212726 -0300	commit: feat: Update drive upload files and manage binary changes
+292ebd2b0ca94331099e7c68bfaad853dab5e6fa e50a11547caf085b5fd9cb47defd94d6ea0730c7 f-alon <f.desananiceto@protonmail.com> 1793212750 -0300	commit: 2
+e50a11547caf085b5fd9cb47defd94d6ea0730c7 c48e297d1e1468e182c9fc8ae4e98bfe43d080de f-alon <f.desananiceto@protonmail.com> 1793212806 -0300	commit: feat: Clean up temporary drive upload files and manage binary changes
+c48e297d1e1468e182c9fc8ae4e98bfe43d080de 3b5c268c532b4391079e40d05ca36a8fb71e195f f-alon <f.desananiceto@protonmail.com> 1793212875 -0300	commit: feat: Manage temporary drive upload files and clean up binary changes
+3b5c268c532b4391079e40d05ca36a8fb71e195f 69f8793be388149d3ce7fa4943a5a491a010b852 f-alon <f.desananiceto@protonmail.com> 1793213156 -0300	commit: feat: Update and manage temporary drive upload files, including cleanup of binary changes
+69f8793be388149d3ce7fa4943a5a491a010b852 9eb6c6f2a233b12f8cfaa9a54ad7efa4f8201901 f-alon <f.desananiceto@protonmail.com> 1793213228 -0300	commit: 2
+9eb6c6f2a233b12f8cfaa9a54ad7efa4f8201901 9fc408d9faf9ef4c2f4002f6eca95d5bf19461d4 f-alon <f.desananiceto@protonmail.com> 1793213239 -0300	commit: 3
+9fc408d9faf9ef4c2f4002f6eca95d5bf19461d4 9381f457858506031379bef316286648a4d262fe f-alon <f.desananiceto@protonmail.com> 1793213247 -0300	commit: 4
+9381f457858506031379bef316286648a4d262fe 5fecc5be16ecd6f9eabcf5aa013a285780d12c29 f-alon <f.desananiceto@protonmail.com> 1793213254 -0300	commit: 5
+5fecc5be16ecd6f9eabcf5aa013a285780d12c29 c80eaa628da3a982da42a3e7bee6845a1fe9d9c2 f-alon <f.desananiceto@protonmail.com> 1793213264 -0300	commit: 6
+c80eaa628da3a982da42a3e7bee6845a1fe9d9c2 2b7363a920c951ac19e740475df79cc076e6901d f-alon <f.desananiceto@protonmail.com> 1793213270 -0300	commit: 7
+2b7363a920c951ac19e740475df79cc076e6901d eda7ac432ee2441a21f55391f97dcb414aa575b4 f-alon <f.desananiceto@protonmail.com> 1793213273 -0300	commit: 8
