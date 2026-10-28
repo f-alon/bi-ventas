@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core.db import DB_PATH, get_connection, init_db, purge_database
+from database import DB_PATH, get_connection, init_db, purge_all_tables
 from core.seed import seed_database
 
 
@@ -26,42 +26,51 @@ def main():
         except Exception:
             pass
 
-    parser = argparse.ArgumentParser(description="Clean Reset de la base de datos de LABFIX BI")
+    parser = argparse.ArgumentParser(description="Clean Reset de la base de datos de LABFIX ERP")
     parser.add_argument(
         "--keep-users",
         action="store_true",
-        help="Borra todas las ordenes de trabajo pero conserva los usuarios registrados",
+        help="Borra todas las operaciones pero conserva los usuarios registrados",
     )
     parser.add_argument(
         "--seed",
         action="store_true",
-        help="Siembra 180 ordenes de prueba tras el reinicio",
+        help="Siembra datos de prueba tras el reinicio",
     )
     args = parser.parse_args()
 
     print("=" * 60)
-    print("LABFIX BI - REINICIO Y PURGA DE BASE DE DATOS (CLEAN RESET)")
+    print("LABFIX ERP - REINICIO Y PURGA DE BASE DE DATOS (CLEAN RESET)")
     print("=" * 60)
     print(f"Ruta de base de datos: {DB_PATH}")
 
     # Purgar y recrear esquema
-    purge_database(keep_users=args.keep_users)
+    purge_all_tables(keep_users=args.keep_users)
     init_db()
 
     conn = get_connection()
     user_count = conn.execute("SELECT COUNT(*) FROM usuarios").fetchone()[0]
-    order_count = conn.execute("SELECT COUNT(*) FROM ordenes").fetchone()[0]
+    order_count = conn.execute("SELECT COUNT(*) FROM dispositivos_ordenes").fetchone()[0]
+    stock_count = conn.execute("SELECT COUNT(*) FROM productos_stock").fetchone()[0]
 
-    print(f"[OK] Ordenes en base de datos: {order_count} (Metricas limpias en 0)")
+    print(f"[OK] Ordenes de servicio: {order_count} (Metricas limpias en 0)")
+    print(f"[OK] Articulos de stock: {stock_count}")
     print(f"[OK] Usuarios registrados: {user_count}")
 
     if args.seed:
-        print("[*] Sembrando 180 ordenes de prueba de microelectronica...")
-        seeded = seed_database(num_records=180, force=True)
-        print(f"[OK] Se insertaron {seeded} ordenes de prueba.")
+        print("[*] Sembrando datos de prueba realistas para los 5 modulos ERP...")
+        seed_database(force=True)
+        order_count = conn.execute("SELECT COUNT(*) FROM dispositivos_ordenes").fetchone()[0]
+        stock_count = conn.execute("SELECT COUNT(*) FROM productos_stock").fetchone()[0]
+        user_count = conn.execute("SELECT COUNT(*) FROM usuarios").fetchone()[0]
+        print(f"[OK] Base sembrada con exito:")
+        print(f"     - Usuarios: {user_count}")
+        print(f"     - Articulos de Stock: {stock_count}")
+        print(f"     - Ordenes de Servicio: {order_count}")
 
-    print("\n[OK] Base de datos lista. Las estadisticas arrancaran limpias en cero sin errores.")
+    print("\n[OK] Base de datos lista. Las estadisticas arrancaran limpias sin errores.")
     print("=" * 60)
+
 
 
 if __name__ == "__main__":

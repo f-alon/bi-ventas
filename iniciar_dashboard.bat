@@ -1,9 +1,9 @@
 @echo off
-title LABFIX BI - Servicio Tecnico de Celulares
+title LABFIX ERP - Taller de Reparaciones, POS & BI
 cd /d "%~dp0"
 
 echo ==============================================================
-echo        INICIANDO LABFIX BI - REPARACION DE CELULARES
+echo        INICIANDO LABFIX ERP - REPARACIONES, POS & CAJA
 echo ==============================================================
 echo.
 

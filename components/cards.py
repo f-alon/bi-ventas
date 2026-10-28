@@ -110,16 +110,24 @@ def get_status_badge_html(status: str) -> str:
     return f'<span class="badge-status {css}">{status}</span>'
 
 
-def empty_state(message: str = "No hay registros disponibles para los filtros seleccionados.") -> None:
-    """Muestra un empty state visual profesional."""
+def empty_state(title_or_message: str = "Sin datos disponibles", subtitle: str = "", icon: str = "🔍") -> None:
+    """Muestra un empty state visual profesional, admitiendo título y subtítulo descriptivo."""
+    if not subtitle:
+        title = "Sin registros disponibles"
+        desc = title_or_message
+    else:
+        title = title_or_message
+        desc = subtitle
+
     st.markdown(
         f"""
         <div class="empty-state-box">
-            <div class="empty-state-icon">🔍</div>
-            <div style="font-weight: 600; color: #E5E7EB; margin-bottom: 0.25rem;">Sin datos en el rango</div>
-            <div style="font-size: 0.82rem;">{message}</div>
+            <div class="empty-state-icon">{icon}</div>
+            <div style="font-weight: 600; color: #E5E7EB; margin-bottom: 0.25rem;">{title}</div>
+            <div style="font-size: 0.82rem; color: #9CA3AF;">{desc}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
 
